@@ -43,28 +43,6 @@ class Ptz
         $this->baseUrl = $scheme . $this->host;
     }
 
-
-    public function handle()
-    {
-        if (isset($_GET['command'])) {
-            switch ($_GET['command']) {
-
-            case self::POSITION_COMMAND:
-                if (!isset($_GET[self::XPOS], $_GET[self::YPOS])) {
-                    throw new InvalidArgumentException('Missing x/y pos');
-                }
-                $this->setPosition($_GET[self::XPOS], $_GET[self::YPOS]);
-                break;
-            case self::PRESET_COMMAND:
-                $this->setPreset($_GET[self::PRESET_ID]);
-                break;
-            default:
-                throw new InvalidArgumentException('Invalid command');
-            }
-        }
-
-    }
-
     public function setPosition($x, $y)
     {
         $params = http_build_query(

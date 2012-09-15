@@ -2,10 +2,9 @@ D-Link DCS-5222L control
 ========================
 
 PHP app to control the D-Link DCS-5222L from every browser
-without ithe need of Java or Active-X.
+without the need of Java or Active-X.
 
 Work in progres..
-
 
 Usage
 =====
