@@ -8,7 +8,7 @@ if (isset($_GET['command'])) {
     switch ($_GET['command']) {
 
         case Ptz::POSITION_COMMAND:
-            if (!isset($_GET[Ptz::XPOS], $_GET[Ptx::YPOS])) {
+            if (!isset($_GET[Ptz::XPOS], $_GET[Ptz::YPOS])) {
                 throw new InvalidArgumentException('Missing x/y pos');
             }
             $ptz->setPosition($_GET[Ptz::XPOS], $_GET[Ptz::YPOS]);
