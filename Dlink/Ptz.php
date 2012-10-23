@@ -1,4 +1,7 @@
 <?php
+
+namespace TrafeX\Dlink;
+
 /**
  * Class to control the D-Link DCS-5222L
  *
@@ -15,6 +18,7 @@ class Ptz
     const XPOS = 'xpos';
     const YPOS = 'ypos';
     const PRESET_ID = 'presetId';
+    const DEFAULT_STEPSIZE = 10;
 
     protected $host;
     protected $user;
@@ -55,6 +59,42 @@ class Ptz
         $this->request($this->ptzUrl . $params);
     }
 
+    public function getPositions($stepSize = null)
+    {
+        if (null === $stepSize) {
+            $stepSize = self::DEFAULT_STEPSIZE;
+        }
+        $options = array(
+            'left' => array(
+                'xpos' => -$stepSize,
+                'ypos' => 0,
+            ),
+            'right' => array(
+                'xpos' => $stepSize,
+                'ypos' => 0,
+            ),
+            'up' => array(
+                'xpos' => 0,
+                'ypos' => $stepSize,
+            ),
+            'down' => array(
+                'xpos' => 0,
+                'ypos' => -$stepSize,
+            ),
+        );
+        return array_map(
+            function ($value) {
+                return '?' . http_build_query(
+                    array_merge(
+                        array('command' => Ptz::POSITION_COMMAND),
+                        $value
+                    )
+                );
+            },
+            $options
+        );
+    }
+
     public function setPreset($id)
     {
         $params = http_build_query(
@@ -68,7 +108,7 @@ class Ptz
 
     public function getPresets()
     {
-        $xpath = new DOMXPath($this->getXml());
+        $xpath = new \DOMXPath($this->getXml());
         $presets = $xpath->query('//config/preset');
         $urls = array();
         foreach ($presets as $preset) {
@@ -84,9 +124,28 @@ class Ptz
         return $urls;
     }
 
+    public function setPatrol($command)
+    {
+        if (self::PATROL_COMMAND === $command || self::STOP_COMMAND === $command) {
+            $params = http_build_query(
+                array('command' => $command)
+            );
+            $this->request($this->ptzUrl . $params);
+        }
+    }
+
+    public function getPatrolCommands()
+    {
+        $urls = array(
+            'Patrol' => '?command=' . self::PATROL_COMMAND,
+            'Stop' => '?command=' . self::STOP_COMMAND,
+        );
+        return $urls;
+    }
+
     public function getRtspUrls()
     {
-        $xpath = new DOMXPath($this->getXml());
+        $xpath = new \DOMXPath($this->getXml());
         $rtsp = $xpath->query('//config/RTSP');
         $rtspUrls = array();
         foreach ($rtsp as $urls) {
@@ -114,7 +173,7 @@ class Ptz
     {
         if (null === $this->xmlDoc) {
             $xml = $this->request($this->baseUrl . '/eng/liveView.cgi');
-            $doc = new DOMDocument();
+            $doc = new \DOMDocument();
             $doc->preserveWhiteSpace = false;
             $doc->loadXml($xml);
             $this->xmlDoc = $doc;
@@ -125,13 +184,15 @@ class Ptz
     protected function request($url)
     {
         $ch = curl_init();
-        curl_setopt_array($ch, array(
-            CURLOPT_URL => $url,
-            CURLOPT_HEADER => 0,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERPWD => $this->user . ':' . $this->password,
-        ));
+        curl_setopt_array(
+            $ch,
+            array(
+                CURLOPT_URL => $url,
+                CURLOPT_HEADER => 0,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_USERPWD => $this->user . ':' . $this->password,
+            )
+        );
         return curl_exec($ch);
     }
 }
-
