@@ -39,12 +39,24 @@ class Ptz
             $this->useSsl = $settings['ssl'];
         }
 
-        $scheme = 'http://';
+        $scheme = 'http';
         if ($this->useSsl) {
-            $scheme = 'https://';
+            $scheme = 'https';
         }
-        $this->ptzUrl = $scheme . $this->host . '/cgi/ptdc.cgi?';
-        $this->baseUrl = $scheme . $this->host;
+        $this->ptzUrl = sprintf(
+            '%s://%s:%s@%s/cgi/ptdc.cgi?',
+            $scheme,
+            $this->user,
+            $this->password,
+            $this->host
+        );
+        $this->baseUrl = sprintf(
+            '%s://%s:%s@%s',
+            $scheme,
+            $this->user,
+            $this->password,
+            $this->host
+        );
     }
 
     public function setPosition($x, $y)
@@ -183,16 +195,6 @@ class Ptz
 
     protected function request($url)
     {
-        $ch = curl_init();
-        curl_setopt_array(
-            $ch,
-            array(
-                CURLOPT_URL => $url,
-                CURLOPT_HEADER => 0,
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_USERPWD => $this->user . ':' . $this->password,
-            )
-        );
-        return curl_exec($ch);
+        return file_get_contents($url);
     }
 }

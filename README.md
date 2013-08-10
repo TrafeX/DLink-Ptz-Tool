@@ -12,10 +12,3 @@ Want to use this?
 The only thing you've to do is move the config.dist.php to config.php
 and change the settings to match your camera configuration
 
-Todo
-====
-
-* Add option to make the pan/tilt steps smaller
-* Add stop command
-* Add pan_patrol command
-
