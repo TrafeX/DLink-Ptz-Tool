@@ -112,7 +112,7 @@ class Ptz
         $params = http_build_query(
             array(
                 'command' => self::PRESET_COMMAND,
-                'presetId' => $id,
+                'index' => $id,
             )
         );
         $this->request($this->ptzUrl . $params);
